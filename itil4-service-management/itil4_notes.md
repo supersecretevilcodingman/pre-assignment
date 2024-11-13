@@ -41,6 +41,13 @@
   - [Service Value Chain](#service-value-chain)
     - [Inside of that service value chain block...](#inside-of-that-service-value-chain-block)
   - [Continual Improvement](#continual-improvement)
+  - [ITL 34 Practices](#itl-34-practices)
+    - [Practices](#practices)
+    - [General Management](#general-management)
+    - [Service Management](#service-management)
+    - [Technical Management](#technical-management)
+  - [Putting it All Together](#putting-it-all-together)
+    - [Orchestra Analogy](#orchestra-analogy)
 
 # Section 1: Introduction
 
@@ -189,3 +196,62 @@ Uses interactions between practices. Each activity contributes to the service va
 ![alt text](images/insidethevaluechainmiddleblock.png)
 
 ## Continual Improvement
+Aligns the organisation’s practices and services with changing business needs through the ongoing identification and improvement of services, service components, practices, or any element involved in the efficient and effective management of products and services
+
+![alt text](images/continualimprovdiagram.png)
+
+## ITL 34 Practices
+
+### Practices
+A set of organised resources designed for performing or accomplishing an objective.
+
+### General Management
+Practices adapted from the wider business domain.
+- Architecture management
+- Continual improvement
+- Information security
+- Knowledge management
+- Measurement and reporting
+- Organisation change management
+- Portfolio management
+- Project management
+- Relationship management
+- Risk management
+- Service financial management
+- Strategy management
+- Supplier management
+- Workforce and talent management
+
+### Service Management
+Created / adapted from the within the service management industry.
+- Availability management
+- Business analysis
+- Capacity and performance management
+- Change enablement
+- Incident management
+- IT asset management
+- Monitoring and event management
+- Problem management
+- Release management
+- Service catalog management
+- Service configuration management
+- Service continuity management
+- Service design
+- Service desk
+- Service level management
+- Service request management
+- Service validation and testing
+
+### Technical Management
+Technical functions which have been elevated to the level of service.
+- Deployment management
+- Infrastructure and platform management
+- Software development and management
+
+## Putting it All Together
+emphasises the importance of integrating all components, activities, and practices within an organisation to enable consistent value delivery to customers. ITIL practices, the Service Value System (SVS), and the Service Value Chain must work together seamlessly, supporting each other to create, deliver, and improve services. This integrated approach ensures that each function is aligned with overall business goals, allowing the organisation to adapt to change, respond to demands, and continuously improve.
+
+### Orchestra Analogy
+Think of an orchestra. Each musician (representing a practice or function) has a unique role and skill set, but they don’t play their parts in isolation. The conductor (akin to the Service Value System) ensures that everyone plays in harmony, following the same score (the Service Value Chain). If one musician is out of sync, the quality of the performance (service) suffers. When everyone collaborates and adapts to changes in tempo or dynamics, the orchestra can create a symphony that resonates with the audience (the customer), delivering value consistently.
+
+![alt text](images/certifcateofcompletion.png)
