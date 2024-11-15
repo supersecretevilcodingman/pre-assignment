@@ -38,14 +38,12 @@
     - [Monitoring EBS](#monitoring-ebs)
     - [Summary](#summary)
 - [Section 6: Monitoring and Alerting for AWS RDS](#section-6-monitoring-and-alerting-for-aws-rds)
-  - [AWS EBS Monitoring and Alerting](#aws-ebs-monitoring-and-alerting-1)
-    - [Overview of EBS](#overview-of-ebs-1)
-    - [EBS Volume Types](#ebs-volume-types-1)
-    - [Performance Metrics](#performance-metrics-1)
-    - [Key Concepts for GP2 Volumes](#key-concepts-for-gp2-volumes-1)
-    - [Use Cases](#use-cases-2)
-    - [Monitoring EBS](#monitoring-ebs-1)
-    - [Summary](#summary-1)
+  - [AWS RDS Monitoring and Alerting](#aws-rds-monitoring-and-alerting)
+    - [Overview of RDS](#overview-of-rds)
+    - [Importance of Monitoring RDS](#importance-of-monitoring-rds)
+    - [Monitoring Features](#monitoring-features)
+    - [Benefits](#benefits-1)
+    - [Use Case Example](#use-case-example)
 
 # Section 1: Introduction to AWS
 
@@ -397,70 +395,55 @@ N/A.
 
 # Section 6: Monitoring and Alerting for AWS RDS
 
-## AWS EBS Monitoring and Alerting
+## AWS RDS Monitoring and Alerting
 
-### Overview of EBS
-- **Elastic Block Storage (EBS)**: Persistent block-level storage for EC2 instances.
-- Key Features:
-  - Can be attached, detached, and reattached within the same availability zone.
-  - Data persists even when detached.
-  - Offers high availability and redundancy across AWS regions and availability zones.
+### Overview of RDS
+- **Relational Database Service (RDS)**: A PaaS offering from AWS for managing relational databases.
+- Supports multiple engines: MySQL, PostgreSQL, SQL Server, Oracle, and Aurora.
+- Key features:
+  - Scalable and highly available.
+  - Automatic failover in case of failures.
 
-### EBS Volume Types
-1. **General Purpose SSD (GP2)**:
-   - Balances cost and performance.
-   - Baseline: 3 IOPs/GB, up to 10,000 IOPs.
-   - Burst capacity: Up to 3,000 IOPs.
-   - Minimum volume size: 8GB (minimum 100 IOPs allocated).
-   - Maximum throughput: 160MB/s.
+### Importance of Monitoring RDS
+- Databases are critical for application performance, availability, and user experience.
+- Monitoring ensures reliability, performance, and minimal downtime.
 
-2. **Provisioned IOPS SSD (io1)**:
-   - High-performance, mission-critical workloads.
-   - Higher cost than GP2.
+### Monitoring Features
+1. **CloudWatch Metrics**:
+   - Metrics include:
+     - **CPU Utilisation**
+     - **Database Connections**
+     - **Free Memory**
+   - Default metrics collected every 5 minutes.
 
-3. **Throughput Optimised HDD (st1)**:
-   - Sequential workloads requiring high throughput.
-   - Lower cost.
+2. **CloudWatch Alarms and Logs**:
+   - Alarms based on metric thresholds.
+   - Logs available for supported database engines:
+     - **MySQL Logs**:
+       - Error Log.
+       - Slow Query Log.
+       - General Log.
 
-4. **Cold HDD (sc1)**:
-   - Optimised for infrequent, sequential workloads.
-   - Lowest cost.
+3. **Event Notifications**:
+   - Tracks changes in DB instances, snapshots, security groups, and parameter groups.
+   - Notifications via email, SMS, etc., for configuration changes or actions.
 
-### Performance Metrics
-1. **IOPS (Input/Output Operations per Second)**:
-   - Key performance measure.
-   - SSD: Measures random operations in 256KB chunks.
-   - HDD: Measures sequential operations in 1024KB chunks.
-2. **Throughput**:
-   - Measured in MB/s, representing the maximum data transfer rate.
+4. **Real-Time Log Monitoring**:
+   - View logs that refresh every 5 seconds.
+   - Download logs for deeper analysis.
 
-### Key Concepts for GP2 Volumes
-- Baseline IOPs: 3 IOPs per GB.
-- **Burst Credits**:
-  - Accumulate during idle periods.
-  - Allow performance to exceed baseline temporarily.
-  - Initial credit balance: 5.4 million credits (sustains 3,000 IOPs for 30 minutes).
-  - Credits are consumed during high activity and replenish when idle.
+### Benefits
+- Proactive issue detection and resolution.
+- Real-time insights into database health and performance.
+- Enhanced reliability through automated event handling.
+- Debugging support with detailed log access and event tracking.
 
-### Use Cases
-1. **Persistent Storage**:
-   - Attach to EC2 instances for general-purpose or critical workloads.
-2. **High Performance**:
-   - Use io1 for applications needing low latency and high throughput.
-3. **Sequential Data**:
-   - Optimise st1 and sc1 for workloads like backups or logs.
+### Use Case Example
+- A MySQL database named `Testdb`:
+  - Metrics visualised via CloudWatch.
+  - Logs monitored in near real-time.
+  - Notifications configured for key events or alarms.
 
-### Monitoring EBS
-1. **Metrics to Monitor**:
-   - IOPS: Evaluate performance.
-   - Throughput: Assess data transfer efficiency.
-   - IO Credits: Track burst capacity.
-2. **Integration with AWS**:
-   - CloudWatch: Monitor performance, set alarms, and trigger actions.
-   - SNS: Send alerts or notifications based on CloudWatch alarms.
+By utilising RDS monitoring features, we ensure optimal database performance and minimise downtime.
 
-### Summary
-- EBS provides scalable, persistent storage with multiple volume types tailored for different use cases.
-- Key performance factors include IOPS, throughput, and burst credits.
-- Monitoring EBS through CloudWatch ensures optimal performance and alerting for critical thresholds.
 
