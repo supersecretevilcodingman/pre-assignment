@@ -4,7 +4,7 @@
 
   ![alt text](certificates/certitl4.png)
 
-- [Jira Notes](jira-confluence/jira/.jira_notes.md), [Confluence Notes](jira-confluence/confluence/confluence_notes.md)
+- [Jira Notes](jira-confluence/jira/jira_notes.md), [Confluence Notes](jira-confluence/confluence/confluence_notes.md)
   
   ![alt text](certificates/certjiraconf.png)
 
