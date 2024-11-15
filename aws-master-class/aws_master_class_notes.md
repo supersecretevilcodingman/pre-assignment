@@ -44,6 +44,23 @@
     - [Monitoring Features](#monitoring-features)
     - [Benefits](#benefits-1)
     - [Use Case Example](#use-case-example)
+- [Section 7: Monitoring and Alerting for AWS ELB](#section-7-monitoring-and-alerting-for-aws-elb)
+  - [AWS ELB Monitoring and Alerting](#aws-elb-monitoring-and-alerting)
+    - [Overview of ELB](#overview-of-elb)
+    - [Importance of ELB Monitoring](#importance-of-elb-monitoring)
+    - [Key Metrics to Monitor](#key-metrics-to-monitor)
+    - [Monitoring Procedures](#monitoring-procedures)
+    - [Benefits of Monitoring ELB](#benefits-of-monitoring-elb)
+- [Section 8:](#section-8)
+  - [AWS Billing and Cost Monitoring](#aws-billing-and-cost-monitoring)
+    - [Overview](#overview)
+    - [Importance of Monitoring Billing](#importance-of-monitoring-billing)
+    - [Key Metrics for Billing](#key-metrics-for-billing)
+    - [Monitoring Features](#monitoring-features-1)
+    - [Best Practices](#best-practices)
+    - [Benefits](#benefits-2)
+- [Takeaways](#takeaways)
+  - [Monitoring Analogy for Each Section:](#monitoring-analogy-for-each-section)
 
 # Section 1: Introduction to AWS
 
@@ -446,4 +463,140 @@ N/A.
 
 By utilising RDS monitoring features, we ensure optimal database performance and minimise downtime.
 
+# Section 7: Monitoring and Alerting for AWS ELB
 
+## AWS ELB Monitoring and Alerting
+
+### Overview of ELB
+- **Elastic Load Balancer (ELB)**: AWS's load balancing service.
+- Distributes incoming application traffic across multiple EC2 instances.
+- Ensures:
+  - **Fault Tolerance**: High availability through traffic distribution.
+  - **Scalability**: Seamlessly adjusts load balancing capacity as required.
+
+### Importance of ELB Monitoring
+- ELBs are the entry points for applications accessed over remote networks.
+- Key focus areas:
+  - **Availability**: Ensuring the ELB is operational.
+  - **Performance**: Routing traffic efficiently to backend resources.
+
+### Key Metrics to Monitor
+1. **Request Count**:
+   - Total requests handled by the ELB.
+   - Identifies traffic patterns and load.
+
+2. **Latency**:
+   - Measures the time taken to route traffic from the ELB to the backend instances.
+   - High latency indicates performance bottlenecks.
+
+3. **Healthy Host Count**:
+   - Number of backend instances passing health checks.
+   - Ensures adequate resources to handle traffic.
+
+4. **Unhealthy Host Count**:
+   - Instances failing health checks.
+   - Indicates backend issues that need resolution.
+
+5. **HTTP Response Codes**:
+   - 2xx, 4xx, and 5xx response codes.
+   - High 4xx or 5xx errors suggest issues with application or backend resources.
+
+6. **Surge Queue Length**:
+   - Number of requests waiting to be routed.
+   - A high value indicates the ELB may be overloaded.
+
+7. **Spillover Count**:
+   - Number of requests dropped due to queue overflow.
+   - Indicates the need for scaling.
+
+### Monitoring Procedures
+- Use **AWS CloudWatch** to:
+  - Visualise key metrics on dashboards.
+  - Set alarms for thresholds (e.g., high latency, unhealthy hosts).
+- Configure **Health Checks**:
+  - Periodically verify backend instance availability and performance.
+- Enable **Access Logs**:
+  - Provides detailed request and response data for debugging and optimisation.
+- Leverage **Auto Scaling**:
+  - Automatically add or remove instances based on traffic patterns to avoid overload.
+
+### Benefits of Monitoring ELB
+- Proactively detect and resolve performance or availability issues.
+- Ensure seamless traffic distribution for fault tolerance.
+- Optimise application performance and user experience.
+
+# Section 8: 
+
+## AWS Billing and Cost Monitoring
+
+### Overview
+- AWS operates on a **pay-as-you-go** model:
+  - Users pay only for resources used.
+  - Costs stop accruing when resources are deallocated.
+
+### Importance of Monitoring Billing
+- Prevent unexpected cost overruns due to:
+  - Over-provisioning resources.
+  - Failure to deallocate unused resources (e.g., EBS volumes after EC2 termination).
+  - Lack of knowledge about billing rules for specific services.
+- Insight into cloud usage helps optimise resource allocation and minimise costs.
+
+### Key Metrics for Billing
+- **Per Resource**: Costs associated with individual resources (e.g., EC2, EBS).
+- **Per Resource Type**: Aggregate costs for types of services.
+- **Per Region/Availability Zone**: Geographical cost distribution.
+- **Thresholds**: Costs exceeding predefined budget limits.
+
+### Monitoring Features
+1. **Billing Alerts**:
+   - Available only to the **root account**.
+   - Alerts can be received via:
+     - **Email**: Includes PDF invoices.
+     - **CloudWatch Alarms**: Triggered by selected billing metrics.
+
+2. **CloudWatch Billing Metrics**:
+   - Must enable **Receive Billing Alerts** in the billing and cost management dashboard.
+   - Metrics include total and per-resource spending.
+
+3. **Daily Billing Reports**:
+   - Generated and saved to a designated **S3 bucket** for review and analysis.
+
+4. **Insights for Optimisation**:
+   - Monitor and analyse spend by resource, resource type, and region.
+   - Use insights to adjust resources for cost efficiency.
+
+### Best Practices
+- **Set Billing Thresholds**:
+  - Configure CloudWatch alarms for expected budget limits.
+- **Enable Billing Reports**:
+  - Use daily billing reports for detailed cost analysis.
+- **Optimise Resources**:
+  - Regularly review metrics and deallocate unused resources.
+- **Delegate Root Account Oversight**:
+  - Ensure only authorised access to billing metrics.
+
+### Benefits
+- Proactively prevents cost overruns.
+- Provides transparency into resource usage and spending.
+- Supports strategic optimisation of cloud operations.
+
+# Takeaways
+
+**EC2 (Elastic Compute Cloud)**
+- A scalable compute service that allows you to deploy and manage virtual servers in the cloud.
+
+**EBS (Elastic Block Store)**
+- A persistent block storage service designed for use with EC2 instances to store data securely and reliably.
+
+**RDS (Relational Database Service)**
+- A fully managed relational database service that supports multiple database engines and automates common tasks like backups and scaling.
+
+**ELB (Elastic Load Balancer)**
+- A managed service that automatically distributes incoming application traffic across multiple targets to ensure fault tolerance and scalability.
+
+
+## Monitoring Analogy for Each Section:
+1. **EC2**: Like monitoring a car engine—ensure it runs efficiently while keeping track of fuel costs (compute hours).
+2. **EBS**: Like monitoring a storage drive—check read/write speeds for performance and track storage rental fees.
+3. **RDS**: Like a bank vault—monitor access and security (connections, performance) while managing rental costs for storage.
+4. **ELB**: Like traffic management on a highway—ensure smooth flow (latency, healthy hosts) while tracking toll charges for data.
