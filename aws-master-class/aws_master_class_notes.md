@@ -617,16 +617,16 @@ By utilising RDS monitoring features, we ensure optimal database performance and
 
 ## EC2 (Elastic Compute Cloud)
 **Description**: A scalable compute service that lets you deploy and manage virtual servers to run applications and workloads on demand.  
-**Analogy**: EC2 is like renting a car—you get a vehicle (compute power) for as long as you need it and can customise it for your journey (applications).
+**Analogy**: EC2 is like renting a car — you get a vehicle (compute power) for as long as you need it and can customise it for your journey (applications).
 
 ## EBS (Elastic Block Store)
 **Description**: A persistent block storage service designed to store data for use with EC2 instances, supporting high availability and reliability.  
-**Analogy**: EBS is like a portable hard drive—you can attach it to your computer (EC2 instance), store data, and reuse it even if you switch devices.
+**Analogy**: EBS is like a portable hard drive — you can attach it to your computer (EC2 instance), store data, and reuse it even if you switch devices.
 
 ## RDS (Relational Database Service)
 **Description**: A fully managed relational database service that automates setup, scaling, and maintenance for supported database engines.  
-**Analogy**: RDS is like a managed library system—you borrow books (database storage) without worrying about organising shelves (infrastructure).
+**Analogy**: RDS is like a managed library system — you borrow books (database storage) without worrying about organising shelves (infrastructure).
 
 ## ELB (Elastic Load Balancer)
 **Description**: A managed service that distributes incoming traffic across multiple backend targets to ensure availability and scalability.  
-**Analogy**: ELB is like a traffic cop at a busy intersection—efficiently directing vehicles (requests) to their destinations to avoid congestion.
+**Analogy**: ELB is like a traffic cop at a busy intersection — efficiently directing vehicles (requests) to their destinations to avoid congestion.

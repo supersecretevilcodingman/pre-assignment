@@ -9,3 +9,4 @@
   ![alt text](certificates/certjiraconf.png)
 
 - [AWS Master Class Notes](aws-master-class/aws_master_class_notes.md)
+  ![alt text](certificates/certaws.png)
