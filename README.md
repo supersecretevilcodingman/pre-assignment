@@ -7,3 +7,5 @@
 - [Jira Notes](jira-confluence/jira_notes.md), [Confluence Notes](jira-confluence/confluence_notes.md)
   
   ![alt text](certificates/certjiraconf.png)
+
+- [AWS Master Class Notes](aws-master-class/aws_master_class_notes.md)

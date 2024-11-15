@@ -1,3 +1,10 @@
+- [Section 1: Introduction](#section-1-introduction)
+- [Section 2: Confluence Concepts You Need to Know Before Using Confluence](#section-2-confluence-concepts-you-need-to-know-before-using-confluence)
+  - [What is Confluence?](#what-is-confluence)
+  - [Understanding the difference between Confluence and Jira](#understanding-the-difference-between-confluence-and-jira)
+  - [Confluence Terms You Need to Know](#confluence-terms-you-need-to-know)
+  - [Keyboard Shortcuts for Confluence](#keyboard-shortcuts-for-confluence)
+
 # Section 1: Introduction
 We will be using Confluence Cloud.
 

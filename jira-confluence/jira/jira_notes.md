@@ -1,3 +1,19 @@
+- [Section 1: Introduction](#section-1-introduction)
+- [Section 2: Jira Concepts You Need to Know in Jira](#section-2-jira-concepts-you-need-to-know-in-jira)
+  - [What is Jira?](#what-is-jira)
+  - [Jira Terms You Need to Know](#jira-terms-you-need-to-know)
+    - [Issues and Projects](#issues-and-projects)
+- [Section 3: Team-Managed Projects](#section-3-team-managed-projects)
+    - [Team-Managed Projects](#team-managed-projects)
+      - [Navigating](#navigating)
+- [Section 4: Company-Managed Projects](#section-4-company-managed-projects)
+    - [Company-Managed Projects](#company-managed-projects)
+      - [Navigating](#navigating-1)
+- [Sectiion 5: Jira's Administrative Back End](#sectiion-5-jiras-administrative-back-end)
+  - [Users In Java](#users-in-java)
+  - [Understanding Work Flows](#understanding-work-flows)
+  - [Schemes](#schemes)
+
 # Section 1: Introduction
 Please check the instructor files for the introduction material.
 
