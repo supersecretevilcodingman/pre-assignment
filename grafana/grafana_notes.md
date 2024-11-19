@@ -54,6 +54,10 @@
     - [5. Managing Permissions in Grafana](#5-managing-permissions-in-grafana)
     - [6. Advanced Features](#6-advanced-features)
     - [7. Key Notes](#7-key-notes)
+- [Section 5: Prometheus setup as a service \& getting started with grafana SMTP relay configuration](#section-5-prometheus-setup-as-a-service--getting-started-with-grafana-smtp-relay-configuration)
+  - [Steps to Set Up Prometheus](#steps-to-set-up-prometheus)
+  - [Grafana Setup](#grafana-setup)
+  - [Summary](#summary)
 
 # Section 1: Introduction to Grafana: What Is Is and Why You Need It
 
@@ -526,4 +530,102 @@ You should now be able to access Grafana.
 - **CloudWatch Role:** Ensure the IAM role is limited to the required read-only permissions for security.
 - **Performance:** Monitor the number of concurrent Grafana users, as high concurrency may impact performance.
 - **Scalability:** For production environments, consider using Grafana Cloud or a high-capacity instance.
+
+# Section 5: Prometheus setup as a service & getting started with grafana SMTP relay configuration 
+
+## Steps to Set Up Prometheus
+
+1. **Create Required Directories:**
+   - Create directories for Prometheus under `/etc` and `/var/lib`.
+     ```bash
+     mkdir -p /etc/prometheus /var/lib/prometheus
+     ```
+
+2. **Download and Extract Prometheus:**
+   - Use `wget` to download Prometheus binaries.
+     ```bash
+     wget https://github.com/prometheus/prometheus/releases/download/<version>/prometheus-<version>.tar.gz
+     tar -xvzf prometheus-<version>.tar.gz
+     ```
+
+3. **Move Binaries to Appropriate Directories:**
+   - Copy Prometheus binaries and libraries:
+     ```bash
+     cp prometheus /usr/local/bin/
+     cp promtool /usr/local/bin/
+     cp -r consoles /etc/prometheus/
+     cp -r console_libraries /etc/prometheus/
+     ```
+
+4. **Configure Prometheus:**
+   - Modify the `prometheus.yml` configuration file under `/etc/prometheus/`.
+     ```yaml
+     global:
+       scrape_interval: 10s
+
+     scrape_configs:
+       - job_name: "prometheus"
+         static_configs:
+           - targets: ["localhost:9090"]
+     ```
+
+5. **Create a Systemd Service for Prometheus:**
+   - Add the following service file at `/etc/systemd/system/prometheus.service`:
+     ```ini
+     [Unit]
+     Description=Prometheus Monitoring Service
+     After=network.target
+
+     [Service]
+     User=root
+     ExecStart=/usr/local/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/var/lib/prometheus
+     Restart=always
+
+     [Install]
+     WantedBy=multi-user.target
+     ```
+
+6. **Start and Enable Prometheus Service:**
+   ```bash
+   systemctl daemon-reload
+   systemctl start prometheus
+   systemctl enable prometheus
+   ```
+
+7. **Access Prometheus UI:**
+   - Open `http://<instance-ip>:9090` in your browser.
+
+## Grafana Setup
+
+1. **Add Prometheus as a Data Source in Grafana:**
+   - Navigate to the Grafana UI and add Prometheus as a data source with the URL `http://<Prometheus-IP>:9090`.
+
+2. **Create Dashboards and Panels:**
+   - Use the Prometheus data source to create visualizations.
+
+3. **Configure SMTP Relay for Alerts:**
+   - Update `grafana.ini` for SMTP settings.
+     ```ini
+     [smtp]
+     enabled = true
+     host = smtp.example.com:587
+     user = your-email@example.com
+     password = your-password
+     from_address = grafana@example.com
+     from_name = Grafana
+     ```
+
+   - Restart Grafana service.
+     ```bash
+     systemctl restart grafana-server
+     ```
+
+4. **Set Up Alerts in Grafana:**
+   - Create alert rules and assign notifications to email or other channels like PagerDuty.
+
+## Summary
+
+- Prometheus collects metrics, scrapes data from targets, and provides basic UI at port `9090`.
+- Grafana integrates with Prometheus for visualization and alerting.
+- Alerts can be configured in Grafana to trigger notifications based on specified thresholds.
 
