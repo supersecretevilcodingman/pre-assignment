@@ -1,15 +1,16 @@
 - [Section 1: Introduction to Grafana: What Is Is and Why You Need It](#section-1-introduction-to-grafana-what-is-is-and-why-you-need-it)
-  - [1. Overview of Grafana](#1-overview-of-grafana)
+  - [Overview of Grafana](#overview-of-grafana)
     - [What is Grafana?](#what-is-grafana)
-  - [2. Grafana Deployment Options](#2-grafana-deployment-options)
+  - [Grafana Deployment Options](#grafana-deployment-options)
     - [Available Modes](#available-modes)
-  - [3. Why Grafana?](#3-why-grafana)
-  - [4. Integration with Prometheus](#4-integration-with-prometheus)
-  - [5. Use Cases and Data Sources](#5-use-cases-and-data-sources)
+  - [Why Grafana?](#why-grafana)
+  - [Integration with Prometheus](#integration-with-prometheus)
+  - [Use Cases and Data Sources](#use-cases-and-data-sources)
     - [Supported Data Sources](#supported-data-sources)
     - [Use Cases](#use-cases)
-  - [6. Training Modules Overview](#6-training-modules-overview)
+  - [Training Modules Overview](#training-modules-overview)
     - [Key Topics](#key-topics)
+- [Section 2: Getting started with Grafana and Prometheus](#section-2-getting-started-with-grafana-and-prometheus)
   - [Create an EC2 Instance with Grafana Installed](#create-an-ec2-instance-with-grafana-installed)
     - [Setting up the EC2 instance](#setting-up-the-ec2-instance)
     - [Install Docker](#install-docker)
@@ -24,7 +25,7 @@
     - [Hardware Requirements for Grafana](#hardware-requirements-for-grafana)
     - [Grafana Database](#grafana-database)
   - [Implementation Steps](#implementation-steps)
-  - [Setting up EC2 Instance](#setting-up-ec2-instance)
+- [Section 3: Production Readiness Scenarios](#section-3-production-readiness-scenarios)
   - [Install Grafana as a Standalone Binary](#install-grafana-as-a-standalone-binary)
     - [Make sure Grafana binary is available](#make-sure-grafana-binary-is-available)
     - [Extract and Start Grafana](#extract-and-start-grafana)
@@ -40,15 +41,23 @@
     - [Important Notes](#important-notes)
     - [Teams and Organisations](#teams-and-organisations)
     - [Practical Usage](#practical-usage)
-  - [Notes on Grafana: Workspaces, Cloud Integration, and User Administration](#notes-on-grafana-workspaces-cloud-integration-and-user-administration)
-    - [Workspaces](#workspaces)
-    - [Cloud Integration (AWS CloudWatch Example)](#cloud-integration-aws-cloudwatch-example)
-    - [User Administration](#user-administration)
-    - [Key Takeaways](#key-takeaways)
+- [Section 4: Workspaces, Cloud Integration, and User Administration](#section-4-workspaces-cloud-integration-and-user-administration)
+  - [Workspaces](#workspaces)
+  - [Cloud Integration (AWS CloudWatch Example)](#cloud-integration-aws-cloudwatch-example)
+  - [User Administration](#user-administration)
+  - [Key Takeaways](#key-takeaways)
+  - [Steps to Integrate CloudWatch and Grafana for AWS Monitoring](#steps-to-integrate-cloudwatch-and-grafana-for-aws-monitoring)
+    - [1. Setting Up IAM in AWS](#1-setting-up-iam-in-aws)
+    - [2. Configuring Grafana](#2-configuring-grafana)
+    - [3. Fetching Metrics from CloudWatch](#3-fetching-metrics-from-cloudwatch)
+    - [4. Creating Dashboards in Grafana](#4-creating-dashboards-in-grafana)
+    - [5. Managing Permissions in Grafana](#5-managing-permissions-in-grafana)
+    - [6. Advanced Features](#6-advanced-features)
+    - [7. Key Notes](#7-key-notes)
 
 # Section 1: Introduction to Grafana: What Is Is and Why You Need It
 
-## 1. Overview of Grafana
+## Overview of Grafana
 ### What is Grafana?
 - An **open-source visualization tool** for monitoring and observability.
 - **Core Functionality**: Offers advanced visualization for backend data sources.
@@ -57,7 +66,7 @@
 
 ---
 
-## 2. Grafana Deployment Options
+## Grafana Deployment Options
 ### Available Modes
 1. **Grafana Open Source (OS)**:
    - Community-supported.
@@ -72,7 +81,7 @@
 
 ---
 
-## 3. Why Grafana?
+## Why Grafana?
 - Offers **enriched visualization** compared to Prometheus or other monitoring tools.
 - Supports various types of graphs: Time series, gauge, tables, and more.
 - Easily integrates with **Prometheus**, **InfluxDB**, **CloudWatch**, and other data sources.
@@ -80,7 +89,7 @@
 
 ---
 
-## 4. Integration with Prometheus
+## Integration with Prometheus
 - Prometheus acts as a **time-series database** backend for Grafana.
 - **Data Collection**:
   - Prometheus uses exporters to scrape metrics from sources like infrastructure (Node Exporter) and applications.
@@ -89,7 +98,7 @@
 
 ---
 
-## 5. Use Cases and Data Sources
+## Use Cases and Data Sources
 ### Supported Data Sources
 - Prometheus (default for training sessions).
 - InfluxDB, CloudWatch, SQL Server (to be covered in specific scenarios).
@@ -102,7 +111,7 @@
 
 ---
 
-## 6. Training Modules Overview
+## Training Modules Overview
 ### Key Topics
 1. **Dashboarding**:
    - Creating and customizing dashboards.
@@ -122,6 +131,8 @@
    - Annotation for improved insight.
 6. **Performance Optimization**:
    - Fine-tuning Grafana for scalability and efficiency.
+
+# Section 2: Getting started with Grafana and Prometheus
 
 ## Create an EC2 Instance with Grafana Installed
 
@@ -200,22 +211,9 @@ scrape_configs:
 * **Version Selection**: Organisations often use the N-1 stable version to avoid immediate bugs.
   * The latest version is 10.4, but 9.3.15 is chosen for stability.
 
-## Setting up EC2 Instance
-1. Navigate to AWS and Launch an Instance:
-   * Go to the AWS Management Console and click on "Launch instance".
- 
-2. Instance Details:
-   * Name: Enter a name.
-   * Image: Select the Amazon Linux 2023 AMI (Amazon Machine Image).
-   * Size: Choose the t2.micro instance type (eligible for the free tier).
-   * Key Pair: Select or create a key pair named georgia-grafana-aws for SSH access.
-   * Security Group: Create a security group named georgia-grafana-test-allow-ssh-3000 with the following rules:
-     * Allow SSH access on port 22.
-     * Allow HTTP access on port 3000.
- 
-3. Launch the Instance:
-   * Click "Launch instance" to start your EC2 instance.
- 
+
+# Section 3: Production Readiness Scenarios 
+
 ## Install Grafana as a Standalone Binary
 Source: https://grafana.com/grafana/download
  
@@ -343,9 +341,9 @@ You should now be able to access Grafana.
 * Tools like Kibana or CloudWatch can be integrated for enhanced functionality.
 * CloudWatch integration will be covered in the next session.
 
-## Notes on Grafana: Workspaces, Cloud Integration, and User Administration
+# Section 4: Workspaces, Cloud Integration, and User Administration
 
-### Workspaces
+## Workspaces
 - **Definition**: Workspaces in Grafana are equivalent to **folders** that store dashboards, alerts, and related configurations.
 - **Purpose**:
   - Organize dashboards based on teams, projects, or purposes.
@@ -366,7 +364,7 @@ You should now be able to access Grafana.
 
 ---
 
-### Cloud Integration (AWS CloudWatch Example)
+## Cloud Integration (AWS CloudWatch Example)
 - **Purpose**:
   - Integrate Grafana with cloud services like **AWS CloudWatch** for monitoring infrastructure metrics.
   - Leverage Grafana’s visualization capabilities to analyze cloud-native metrics.
@@ -393,7 +391,7 @@ You should now be able to access Grafana.
 
 ---
 
-### User Administration
+## User Administration
 - **User Roles**:
   - **Viewer**:
     - Default role with read-only access.
@@ -425,7 +423,107 @@ You should now be able to access Grafana.
 
 ---
 
-### Key Takeaways
+## Key Takeaways
 - Workspaces help organize dashboards and manage access in a scalable way.
 - Cloud integration like AWS CloudWatch allows advanced monitoring and visualization.
 - User administration ensures proper access control and team-based segregation of data.
+
+---
+
+## Steps to Integrate CloudWatch and Grafana for AWS Monitoring
+
+### 1. Setting Up IAM in AWS
+1. **Create a Policy:**
+   - Navigate to the AWS IAM service.
+   - Create a policy with read-only access for the EC2 service.
+   - Ensure the following actions are allowed:
+     - `cloudwatch:GetMetricData`
+     - `cloudwatch:ListMetrics`
+     - `cloudwatch:GetMetricStatistics`
+   - Attach this policy to the user or role.
+
+2. **Create a Role:**
+   - Go to the IAM service and create a new role for programmatic access.
+   - Attach the created policy to this role.
+   - Generate and securely store the **Access Key** and **Secret Key** for programmatic access.
+
+---
+
+### 2. Configuring Grafana
+1. **Access Grafana:**
+   1. Log in to Grafana.
+   2. Go to the **Configuration** -> **Data Sources** section.
+
+2. **Add a CloudWatch Data Source:**
+   1. Select **CloudWatch** as the data source.
+   2. Provide the following details:
+     - **Access Key:** Use the key from the created IAM role.
+     - **Secret Key:** Use the secret key from the created IAM role.
+     - **Region:** Select the appropriate AWS region.
+   3. Test the connection to ensure Grafana can fetch data from CloudWatch.
+
+---
+
+### 3. Fetching Metrics from CloudWatch
+1. **Choose Namespace:**
+   - Select a namespace corresponding to the AWS service you want to monitor, such as:
+     - `AWS/EC2` for EC2 metrics.
+     - `AWS/S3` for S3 bucket metrics.
+
+2. **Select Metrics:**
+   - Filter and choose metrics like `CPUUtilization`, `DiskReadOps`, or `BucketCount` depending on the namespace.
+
+3. **Filter by Dimensions:**
+   - Use dimensions like `InstanceId` for EC2 instances to refine your data.
+
+4. **Test Queries:**
+   - Run queries to ensure that data is successfully retrieved from CloudWatch.
+
+---
+
+### 4. Creating Dashboards in Grafana
+1. **Create a Dashboard:**
+   - Go to **Dashboard** -> **New Dashboard** -> **Add a Panel**.
+
+2. **Select Data Source:**
+   - Choose the configured **CloudWatch** data source.
+
+3. **Configure Panels:**
+   - Add panels to visualize metrics such as `CPU Utilization` or `Bucket Count`.
+   - Customize panels with labels, graphs, or stat views.
+
+4. **Save the Dashboard:**
+   - Name the dashboard appropriately and save it.
+
+---
+
+### 5. Managing Permissions in Grafana
+1. **Create Workspaces:**
+   - Use workspaces (folders) in Grafana to segregate dashboards by teams or projects.
+
+2. **Set Permissions:**
+   - Assign permissions to users or groups:
+     - **Viewer:** Read-only access.
+     - **Editor:** Modify dashboards but no administrative capabilities.
+     - **Admin:** Full administrative access.
+
+---
+
+### 6. Advanced Features
+1. **Alerts:**
+   - Set up alerts for specific metrics, such as high CPU utilization or low bucket count.
+   - Configure notification channels like email or Slack.
+
+2. **Template Variables:**
+   - Use template variables to dynamically filter and display metrics across multiple instances or services.
+
+3. **Collaboration:**
+   - Enable team-specific dashboards by managing users in separate Grafana workspaces.
+
+---
+
+### 7. Key Notes
+- **CloudWatch Role:** Ensure the IAM role is limited to the required read-only permissions for security.
+- **Performance:** Monitor the number of concurrent Grafana users, as high concurrency may impact performance.
+- **Scalability:** For production environments, consider using Grafana Cloud or a high-capacity instance.
+
