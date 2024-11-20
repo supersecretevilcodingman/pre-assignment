@@ -162,7 +162,7 @@
 ## Create an EC2 Instance with Prometheus Installed
 
 ### Setting up the EC2 instance
-1. Set up an EC2 instance using Ubuntu. Ensure the security group allows `SSH`, `HTTP` and port `9090` (Prometheus uses this port).
+1. Set up an EC2 instance using Ubuntu. Ensure the security group allows `SSH`, `HTTP` on port `9090` (Prometheus uses this port).
 2. `sudo apt-get update` and `sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y`.
 
 ### Install Prometheus and Prometheus Node Exporter and Configure the YAML file
