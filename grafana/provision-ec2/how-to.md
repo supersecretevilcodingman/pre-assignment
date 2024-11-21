@@ -219,7 +219,7 @@ resource "aws_security_group" "pre-assignment-kagan-tf-nsg-prometheus" {
 
 ### Creating Outputs For Our URLs
 
-12.  Now that we've finished the main bulk of our terraform file, we can work on an ease-of-access feature. URLs!!! Woohoo! Pretty self explainatory, but it's gonna output some URLs into the console once `terraform apply` is complete, reducing the need to go onto the AWS portal.
+12.  Now that we've finished the main bulk of our terraform file, we can work on an ease-of-access feature. URLs!!! Woohoo! Pretty self explainatory, but it's gonna output some URLs into the console once `terraform apply` is complete, reducing the the need to use the AWS as much.
 
 ```
 output "grafana_dashboard" {
@@ -238,4 +238,34 @@ output "node_exporter_dashboard" {
 }
 ```
 
-If you want to see it put together, head over to [my main.tf file](tf-files/main.tf).
+### Bonus Section: Provisioning Prometheus as a Data Source on Grafana
+13. So you're feeling a little extra huh. You wanna take it to the next level of laziness. Trust me, so did I. Here's how you do it.
+    1. Configure grafana provisioning directory by creating a folder for `datasources` and changes ownership of the `/etc/grafana` directory and its subdirectories to the grafana user and group.
+    2. Add Prometheus data source provisioning file by creating a `YAML` file with all this lovely stuff: 
+        - `apiVersion: 1`: Specifies the version of the provisioning configuration file.
+        - `datasources`: A list of data sources to provision for Grafana.
+        - `name`: Prometheus: Sets the name of the data source as "Prometheus".
+        - `type`: prometheus: Specifies the type of data source as Prometheus.
+        - `access: proxy`: Configures Grafana to access Prometheus via the Grafana server (proxy mode).
+        - `url`: http://${aws_instance.prometheus_instance.public_ip}:9090: Defines the URL of the Prometheus server, dynamically injected with the public IP of the Prometheus instance.
+        - `isDefault`: true: Marks Prometheus as the default data source for Grafana.
+        - `jsonData.timeInterval`: 5s: Sets the default time interval for queries to 5 seconds.
+
+```
+                # Configure Grafana provisioning directory
+                sudo mkdir -p /etc/grafana/provisioning/datasources
+                sudo chown -R grafana:grafana /etc/grafana
+
+                # Add Prometheus data source provisioning file
+                echo 'apiVersion: 1
+                datasources:
+                  - name: Prometheus
+                    type: prometheus
+                    access: proxy
+                    url: http://${aws_instance.prometheus_instance.public_ip}:9090
+                    isDefault: true
+                    jsonData:
+                      timeInterval: 5s' | sudo tee /etc/grafana/provisioning/datasources/prometheus.yml
+```
+
+If you want to see it put together, head over to [my main.tf file](tf-files/main.tf). Ok. That's it. Go away now.
