@@ -10,3 +10,6 @@
 
 - [AWS Master Class Notes](aws-master-class/aws_master_class_notes.md)
   ![alt text](certificates/certaws.png)
+
+- [Grafana Notes](grafana/grafana_notes.md), [Prometheus Notes](grafana/prometheus_notes.md), [How to Provision EC2 to Use Prometheus as a Data Source on Grafana Using Terraform](grafana/provision-ec2/how-to.md)
+  ![alt text](certificates/certgrafana.png)
