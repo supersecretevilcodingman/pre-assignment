@@ -1,3 +1,14 @@
+- [Provisioning 2 EC2 instances with Grafana and Prometheus](#provisioning-2-ec2-instances-with-grafana-and-prometheus)
+  - [main.tf File Breakdown](#maintf-file-breakdown)
+    - [AWS Provider](#aws-provider)
+    - [Creating the Grafana Instance Resource (First EC2 Instance)](#creating-the-grafana-instance-resource-first-ec2-instance)
+    - [Creating the Grafana Instance Security Group Resource](#creating-the-grafana-instance-security-group-resource)
+    - [Creating the Prometheus Instance Resource (Second EC2 Instance)](#creating-the-prometheus-instance-resource-second-ec2-instance)
+    - [Creating the Prometheus Instance Security Group Resource](#creating-the-prometheus-instance-security-group-resource)
+    - [Creating Outputs For Our URLs](#creating-outputs-for-our-urls)
+  - [Bonus Section: Provisioning Prometheus as a Data Source on Grafana](#bonus-section-provisioning-prometheus-as-a-data-source-on-grafana)
+
+
 # Provisioning 2 EC2 instances with Grafana and Prometheus
 
 ## main.tf File Breakdown
@@ -238,7 +249,7 @@ output "node_exporter_dashboard" {
 }
 ```
 
-### Bonus Section: Provisioning Prometheus as a Data Source on Grafana
+## Bonus Section: Provisioning Prometheus as a Data Source on Grafana
 13. So you're feeling a little extra huh. You wanna take it to the next level of laziness. Trust me, so did I. Here's how you do it.
     1. Configure grafana provisioning directory by creating a folder for `datasources` and changes ownership of the `/etc/grafana` directory and its subdirectories to the grafana user and group.
     2. Add Prometheus data source provisioning file by creating a `YAML` file with all this lovely stuff: 
