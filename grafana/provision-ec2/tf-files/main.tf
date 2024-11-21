@@ -1,23 +1,6 @@
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-    grafana = {
-      source = "grafana/grafana"
-    }
-  }
-}
-
 # AWS Provider
 provider "aws" {
   region = "eu-west-1"
-}
-
-# Grafana Provider
-provider "grafana" {
-  url  = "http://${aws_instance.grafana_instance.public_ip}:3000"
-  auth = "${var.grafana_user}:${var.grafana_password}"
 }
 
 # Grafana Instance
@@ -46,6 +29,21 @@ resource "aws_instance" "grafana_instance" {
                 # Update repositories and install Grafana
                 sudo apt-get update -y
                 sudo apt-get install -y grafana
+
+                # Configure Grafana provisioning directory
+                sudo mkdir -p /etc/grafana/provisioning/datasources
+                sudo chown -R grafana:grafana /etc/grafana
+
+                # Add Prometheus data source provisioning file
+                echo 'apiVersion: 1
+                datasources:
+                  - name: Prometheus
+                    type: prometheus
+                    access: proxy
+                    url: http://${aws_instance.prometheus_instance.public_ip}:9090
+                    isDefault: true
+                    jsonData:
+                      timeInterval: 5s' | sudo tee /etc/grafana/provisioning/datasources/prometheus.yml
 
                 # Start and enable Grafana
                 sudo systemctl start grafana-server
@@ -163,50 +161,19 @@ resource "aws_security_group" "pre-assignment-kagan-tf-nsg-prometheus" {
   }
 }
 
-# Configure Grafana to use Prometheus as Data Source
-
-# Add Prometheus Data Source
-resource "grafana_data_source" "prometheus" {
-  name       = "Prometheus"
-  type       = "prometheus"
-  url        = "http://${aws_instance.prometheus_instance.public_ip}:9090"
-  is_default = true
-
-  depends_on = [
-    aws_instance.grafana_instance # Ensure Grafana instance is ready before configuring the data source
-  ]
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      echo "Waiting for Grafana API to be available on port 3000..."
-      count=0
-      until curl --silent --head --fail http://${aws_instance.grafana_instance.public_ip}:3000/api/datasources; do
-        echo "Grafana API is not ready yet. Retrying in 10 seconds... (Attempt $count)"
-        sleep 10
-        count=$((count + 1))
-        if [ $count -ge 42 ]; then
-          echo "Grafana API not available after 7 minutes. Giving up."
-          exit 1
-        fi
-      done
-      echo "Grafana API is up and running. Proceeding with data source configuration."
-    EOT
-  }
-}
-
 # Output Grafana URL as a clickable link (in Markdown)
 
 output "grafana_dashboard" {
   description = "URL to Grafana Dashboard"
-  value       = "Grafana Dashboard: [Click here](http://${aws_instance.grafana_instance.public_ip}:3000)"
+  value       = "Grafana Dashboard: http://${aws_instance.grafana_instance.public_ip}:3000"
 }
 
 output "prometheus_dashboard" {
   description = "URL to Prometheus Dashboard"
-  value       = "Prometheus Dashboard: [Click here](http://${aws_instance.prometheus_instance.public_ip}:9090)"
+  value       = "Prometheus Dashboard: http://${aws_instance.prometheus_instance.public_ip}:9090"
 }
 
 output "node_exporter_dashboard" {
   description = "URL to Node Exporter Dashboard"
-  value       = "Node Exporter Dashboard: [Click here](http://${aws_instance.prometheus_instance.public_ip}:9100)"
+  value       = "Node Exporter Dashboard: http://${aws_instance.prometheus_instance.public_ip}:9100"
 }

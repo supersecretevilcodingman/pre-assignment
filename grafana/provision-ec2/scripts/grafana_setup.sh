@@ -15,6 +15,21 @@ echo "deb [signed-by=/usr/share/keyrings/grafana-archive-keyring.gpg] https://pa
 sudo apt-get update -y
 sudo apt-get install -y grafana
 
+# Configure Grafana provisioning directory
+sudo mkdir -p /etc/grafana/provisioning/datasources
+sudo chown -R grafana:grafana /etc/grafana
+
+# Add Prometheus data source provisioning file
+echo 'apiVersion: 1
+datasources:
+    - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://${aws_instance.prometheus_instance.public_ip}:9090
+    isDefault: true
+    jsonData:
+        timeInterval: 5s' | sudo tee /etc/grafana/provisioning/datasources/prometheus.yml
+
 # Start and enable Grafana
 sudo systemctl start grafana-server
 sudo systemctl enable grafana-server
