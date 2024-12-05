@@ -15,6 +15,15 @@
       - [Provisioning Script](#provisioning-script-1)
     - [Blockers](#blockers)
 - [For Stage 4: Bash provision script for a single VM that runs in user data but deploys the app and database using containers on the one machine. The containers run by the script should use Docker images](#for-stage-4-bash-provision-script-for-a-single-vm-that-runs-in-user-data-but-deploys-the-app-and-database-using-containers-on-the-one-machine-the-containers-run-by-the-script-should-use-docker-images)
+  - [Creating an image of the application using docker for local deployment](#creating-an-image-of-the-application-using-docker-for-local-deployment)
+  - [Creating the docker-compose.yaml file](#creating-the-docker-composeyaml-file)
+  - [Creating the application script](#creating-the-application-script)
+  - [Putting it all together using Terraform](#putting-it-all-together-using-terraform)
+  - [Blockers](#blockers-1)
+    - [Volume Caching](#volume-caching)
+    - [VM Being Slow and Not Working](#vm-being-slow-and-not-working)
+    - [Entrypoint Script Errors](#entrypoint-script-errors)
+    - [Docker Permissions](#docker-permissions)
 - [For Stage 5: Bash provision script for a single VM that runs in user data, but provisions and deploys the app and database using Kubernetes (and optionally Helm) on the one machine](#for-stage-5-bash-provision-script-for-a-single-vm-that-runs-in-user-data-but-provisions-and-deploys-the-app-and-database-using-kubernetes-and-optionally-helm-on-the-one-machine)
 
 
@@ -311,6 +320,140 @@ Throughout the provisioning phase, I had multiple blockers that stopped me from 
 - Docker-compose YAML file 
 - Dockerised application images built and ready for deployment 
 
+## Creating an image of the application using docker for local deployment
+We need to create an image of the application using docker so that we can containerise this project and have both the app and the database running on one virtual machine.
+
+1. First, we run `mvn clean package` in the console of the repository containing `LibraryProject2` in order to produce `LibraryProject2-0.0.1-SNAPSHOT.jar`. This file reduces the size of the application. In our case, it took the application from 982MB to 720MB (this was later roughly 230MB on DockerHub).
+2. In your Gitbash window, navigate to the parent directory of `LibraryProject2` and create a `Dockerfile`, inserting the following:
+
+```dockerfile
+# Build the application
+FROM maven:3.8.5-openjdk-17-slim
+
+# Add a label to specify metadata, such as the purpose of this image.
+LABEL description="LibraryProject2 app docker container"
+
+# Set the working directory to that of the project
+WORKDIR /LibraryProject2
+
+# Copy the project .jar file to the container
+COPY ./LibraryProject2/target/LibraryProject2-0.0.1-SNAPSHOT.jar library-app.jar
+
+# Expose the port that the app runs on
+EXPOSE 5000
+
+# Run the application
+CMD ["java", "-jar", "library-app.jar"]
+```  
+
+We go to this location so that the `Dockerfile` is able to copy the LibraryProject2 contents into the container that will be created. 
+
+1. Use `docker login` while Docker Hub is open to validate your credentials, giving you access so you can push it later. 
+2. Build the docker image using `docker build -t <dockerhub username>/library-app:v1 .`: This tags the image with a name and indicates the current directory contains the `Dockerfile`.
+3. We can then use `docker images` just to confirm it has been created.
+4. Push the image to Docker Hub using `docker push <dockerhub username>/library-app:v1`. We are now ready to create our `docker-compose.yaml` file.
+
+## Creating the docker-compose.yaml file
+
+1. Create a `docker-compose.yaml` file and insert the following:
+
+```yaml
+version: '3'
+
+services: # App and Database services that will run as containers
+  database:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: library
+    volumes: # Ensures database data persists by mapping a named volume
+      - mysql-data:/var/lib/mysql
+      - ./library.sql:/docker-entrypoint-initdb.d/library.sql
+    healthcheck: # Solution to a blocker discussed later. Checked to ensure the mySQL server was running 
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: stinkytroll/library-app:v1
+    depends_on:
+      database:
+       condition: service_healthy
+    ports:
+      - "80:5000"
+    environment:
+      DB_HOST: "jdbc:mysql://database:3306/library"
+      DB_USER: "root"
+      DB_PASS: "password"
+
+volumes:
+  mysql-data:
+```
+
+2. Now we use `docker compose up -d` to run the application in detached mode so that the console doesn't hang. We can then go to `http://localhost/web/authors` to check it is up and running locally.
+
+## Creating the application script
+
+1. Create an `app-docker-provision.sh` file and insert the following:
+
+```sh
+#!/bin/bash
+set -e  # Exit on error
+
+# Update and upgrade system packages
+sudo apt-get update -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+
+# Install docker and docker compose, grant execute permissions, then enable it
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io docker-compose -y
+sudo systemctl enable docker
+
+# Make a directory for the application files
+mkdir /home/ubuntu/library-app
+cd /home/ubuntu/library-app
+
+# Generate SQL file from variable DATABASE_SEED_SQL, replacing it with the contents of the library.sql file
+echo "Creating SQL library seed file..."
+sudo tee ./library.sql <<EOF
+${DATABASE_SEED_SQL}
+EOF
+
+# Generate docker-compose.yaml file and insert contents from the docker-compose.yaml file referenced in variables
+echo "Creating SQL library seed file..."
+sudo tee ./docker-compose.yaml <<EOF
+${DOCKER_COMPOSE_YAML}
+EOF
+
+# Add user to docker group
+sudo usermod -aG docker ubuntu
+
+# Switch to ubuntu user, then docker compose the app
+sudo -u ubuntu -i bash <<'EOF'
+cd /home/ubuntu/library-app
+docker-compose down -v
+docker-compose up -d
+EOF
+```
+
+## Putting it all together using Terraform
+Please click [here](../stage-4/main.tf) to see the `main.tf` file for this stage. Using file referencing, Terraform pulls all this together to make it easy to create and destroy virtual instances.
+
+## Blockers
+
+### Volume Caching
+When composing up and down, the volumes data would persist, meaning it would be intialised with incorrect data - which could potentially show you that the database is seeded when it isn't after you've made a big change. To fix this, whenever I compose down, I used `docker compose down -v`.
+
+### VM Being Slow and Not Working
+I was originally using a `t3.micro`, which was too small for two containers on one virtual machine. This resulted in the console running slowly and the application not loading. To fix this, I changed the instance type to a `t3a.small`, which has more RAM.
+
+### Entrypoint Script Errors
+I had an issue where the MySQL script kept failing with a "Can't initialize batch_readline" error. This error was funnily enough, 1 incorrect letterin my `main.tf` file is what caused the issue. This correction sorted this error out.
+
+### Docker Permissions
+I originally had `sudo chmod +x /usr/local/bin/docker-compose` in my script before I had granted the `ubuntu` user permissions. This meant that the user did not have permissions to access the Docker daemon at the time, and this was stopping my script from working. Removing this line entirely fixed this error.
 
 # For Stage 5: Bash provision script for a single VM that runs in user data, but provisions and deploys the app and database using Kubernetes (and optionally Helm) on the one machine 
 - Kubernetes-related files 
