@@ -38,6 +38,7 @@
   - [Blockers](#blockers-2)
     - [Minikube Permission Issues](#minikube-permission-issues)
     - [NGINX Failed to Start](#nginx-failed-to-start)
+- [Final thoughts](#final-thoughts)
 
 
 # Pre-Requisits
@@ -687,3 +688,8 @@ This command:
 - Searches for the directive try_files $uri $uri/ =404; in the NGINX configuration file.
 - Replaces it with the directive proxy_pass http://<minikube-ip>:30001;, where <minikube-ip> is the value of $MINIKUBE_IP.
 - Saves the updated configuration in /tmp/default.conf to test or review the changes before applying them.
+
+# Final thoughts
+I learnt a lot about provisioning scripts during this project. It was difficult and frustrating at times, but it showed the importance of having error logging throughout your script so you can locate an issue.
+
+As I used Terraform, I felt as if I've also grown more comfortable using it. It has easily become one of my favourite tools to use.
