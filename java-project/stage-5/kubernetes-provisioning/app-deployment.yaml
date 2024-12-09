@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-app
+  template:
+    metadata:
+      labels:
+        app: java-app
+    spec:
+      initContainers:
+      - name: wait-for-db
+        image: busybox
+        command:
+          - sh
+          - -c
+          - >
+            until nc -z java-app-db-svc 3306; do
+              echo "Waiting for database...";
+              sleep 5;
+            done;
+      containers:
+      - name: java-app
+        image: stinkytroll/library-app:v1
+        ports:
+        - containerPort: 5000
+        env:
+          - name: DB_HOST
+            value: jdbc:mysql://java-app-db-svc:3306/library
+          - name: DB_USER
+            value: root
+          - name: DB_PASS
+            value: password
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"

@@ -25,6 +25,19 @@
     - [Entrypoint Script Errors](#entrypoint-script-errors)
     - [Docker Permissions](#docker-permissions)
 - [For Stage 5: Bash provision script for a single VM that runs in user data, but provisions and deploys the app and database using Kubernetes (and optionally Helm) on the one machine](#for-stage-5-bash-provision-script-for-a-single-vm-that-runs-in-user-data-but-provisions-and-deploys-the-app-and-database-using-kubernetes-and-optionally-helm-on-the-one-machine)
+  - [Creating the yaml files](#creating-the-yaml-files)
+    - [app.deployment.yaml](#appdeploymentyaml)
+    - [app-service.yaml](#app-serviceyaml)
+    - [db-configmap.yaml](#db-configmapyaml)
+    - [db-deployment.yaml](#db-deploymentyaml)
+    - [db-pers-volume.yaml](#db-pers-volumeyaml)
+    - [db-pers-volume-claim.yaml](#db-pers-volume-claimyaml)
+    - [db-service.yaml](#db-serviceyaml)
+  - [Creating the Provisioning Script](#creating-the-provisioning-script)
+  - [Terraform File Differences](#terraform-file-differences)
+  - [Blockers](#blockers-2)
+    - [Minikube Permission Issues](#minikube-permission-issues)
+    - [NGINX Failed to Start](#nginx-failed-to-start)
 
 
 # Pre-Requisits
@@ -460,3 +473,217 @@ I originally had `sudo chmod +x /usr/local/bin/docker-compose` in my script befo
 - YAML definition/configuration files 
 - (Optional) Helm chart and values YAML files
 
+## Creating the yaml files
+The first thing I did was create YAML files needed for the app and database:
+
+### app.deployment.yaml
+[Purpose: Defines the deployment for the Java application.](../stage-5/kubernetes-provisioning/app-deployment.yaml)
+- Specifies the number of replicas.
+- Configures the container image, ports, and environment variables for the app.
+
+### app-service.yaml
+[Purpose: Exposes the Java application deployment as a Kubernetes service.](../stage-5/kubernetes-provisioning/app-service.yaml)
+- Uses NodePort to allow external access to the application.
+- Maps external traffic to the app's internal port.
+
+### db-configmap.yaml
+[Purpose: Provides database-related configuration (e.g., SQL initialization scripts or environment variables).](../stage-5/kubernetes-provisioning/db-configmap.yaml)
+- Supplies configuration as a ConfigMap that can be mounted into the database pod.
+
+### db-deployment.yaml
+[Purpose: Defines the deployment for the MySQL database.](../stage-5/kubernetes-provisioning/db-deployment.yaml)
+- Specifies the container image for MySQL.
+- Configures environment variables like DB_NAME, DB_USER, and DB_PASS.
+
+### db-pers-volume.yaml
+[Purpose: Defines a PersistentVolume (PV) for the database.](../stage-5/kubernetes-provisioning/db-pers-volume.yaml)
+- Allocates storage on the host for MySQL data persistence.
+
+### db-pers-volume-claim.yaml
+[Purpose: Defines a PersistentVolumeClaim (PVC) for the database.](../stage-5/kubernetes-provisioning/db-pers-volume-claim.yaml)
+- Requests storage from the PersistentVolume to ensure data persistence.
+
+### db-service.yaml
+[Purpose: Exposes the MySQL database deployment as a Kubernetes service.](../stage-5/kubernetes-provisioning/db-service.yaml)
+- Uses ClusterIP to allow internal communication within the cluster.
+
+## Creating the Provisioning Script
+Once these were created, I needed to set up the provisioning script for the VM. 
+
+```sh
+echo "Update and upgrade packages..." 
+sudo apt-get update -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+```
+- Purpose: Ensure the system has the latest security updates and package versions.
+
+```sh
+# Docker Setup
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+```
+- Purpose: Install Docker and its related tools to provide a container runtime for Minikube.
+
+```sh
+# Add Ubuntu user to docker group and restart docker to apply the changes IF it has not been added already
+echo Checking if ubuntu user has been added...
+if ! groups ubuntu | grep -q '\bdocker\b'; then
+    echo "Adding ubuntu to the docker group..."
+    sudo usermod -aG docker ubuntu
+    exec sg docker "$0"
+    exit
+fi
+```
+- Purpose: Ensure the ubuntu user has permissions to use Docker without sudo.
+- Reason: Minikube requires Docker access without elevated privileges.
+- *BLOCKER: Originally, I did not use an if statement to check for the users group. This caused issues with grabbing the minikube ip later on. I'm still unsure as to why the check is required on a fresh machine, but it meant I had to have this check.*
+
+```sh
+# Minikube Setup
+echo "Downloading minikube..."
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+echo "Installing minikube..."
+sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+
+echo "Setting Docker as the driver..."
+minikube config set driver docker
+```
+- Purpose: Install Minikube and configure it to use Docker as the Kubernetes runtime.
+
+```sh
+# Make a directory for the application files
+mkdir /home/ubuntu/library-app
+cd /home/ubuntu/library-app
+
+# Generate SQL file from variable DATABASE_SEED_SQL, replacing it with the contents of the library.sql file
+echo "Creating SQL library seed file..."
+sudo tee ./library.sql <<EOF
+${DATABASE_SEED_SQL}
+EOF
+
+# Create app-deployment.yaml
+echo "Creating app-deployment.yaml file..."
+sudo tee ./app-deployment.yaml <<EOF
+${APP_DEPLOYMENT_YAML}
+EOF
+
+# Create app-service.yaml
+echo "Creating app-service.yaml file..."
+sudo tee ./app-service.yaml <<EOF
+${APP_SERVICE_YAML}
+EOF
+
+# Create db-configmap.yaml
+echo "Creating db-configmap.yaml file..."
+sudo tee ./db-configmap.yaml <<EOF
+${DB_CONFIGMAP_YAML}
+EOF
+
+# Create db-deployment.yaml
+echo "Creating db-deployment.yaml file..."
+sudo tee ./db-deployment.yaml <<EOF
+${DB_DEPLOYMENT_YAML}
+EOF
+
+# Create db-pers-volume-claim.yaml
+echo "Creating db-pers-volume-claim.yaml file..."
+sudo tee ./db-pers-volume-claim.yaml <<EOF
+${DB_PERSISTENT_VOLUME_CLAIM_YAML}
+EOF
+
+# Create db-pers-volume.yaml
+echo "Creating db-pers-volume.yaml file..."
+sudo tee ./db-pers-volume.yaml <<EOF
+${DB_PERSISTENT_VOLUME_YAML}
+EOF
+
+# Create db-service.yaml
+echo "Creating db-service.yaml file..."
+sudo tee ./db-service.yaml <<EOF
+${DB_SERVICE_YAML}
+EOF
+```
+- Purpose: Create the required Kubernetes YAML files and database seed file for deployment.
+
+```
+# Use Ubuntu user
+sudo -u ubuntu -i bash <<'EOF'
+
+# Start minikube
+minikube start
+MINIKUBE_IP=$(minikube ip)
+
+# Set up Nginx
+sudo apt-get install nginx -y
+sudo sed -i "s|try_files \$uri \$uri/ =404;|proxy_pass http://$MINIKUBE_IP:30001;|" /etc/nginx/sites-available/default
+sudo systemctl restart nginx
+
+echo "Applying Kubernetes resources..."
+
+cd /home/ubuntu/library-app
+
+minikube kubectl -- apply -f app-deployment.yaml
+minikube kubectl -- apply -f app-service.yaml
+minikube kubectl -- apply -f db-configmap.yaml
+minikube kubectl -- apply -f db-deployment.yaml
+minikube kubectl -- apply -f db-pers-volume-claim.yaml
+minikube kubectl -- apply -f db-pers-volume.yaml
+minikube kubectl -- apply -f db-service.yaml
+
+minikube kubectl -- get all
+EOF
+```
+- Purpose: Switch to the ubuntu user and:
+  1. Start Minikube.
+  2. Configure NGINX to proxy traffic to the Minikube NodePort.
+  3. Deploy the Kubernetes resources.
+  4. Verify the deployments with kubectl get all.
+
+This script provisions a complete environment for running a Kubernetes-based Java application with a MySQL database, automating:
+
+  1. Installing dependencies (Docker, Minikube).
+  2. Setting up the Kubernetes cluster and application resources.
+  3. Configuring external access using NGINX.
+
+## Terraform File Differences
+Other than the basic creation of the application service, the only change made was the port. Since I used a reverse proxy, I had port 80 open as opposed to 5000.
+
+## Blockers
+
+### Minikube Permission Issues
+As mentioned in the script, I had issues with minikube permissions. The fix for this was adding `sudo usermod -aG docker ubuntu` into the script to add the ubuntu user to the docker group. This was then followed up with the if statement for checks.
+
+### NGINX Failed to Start
+I had an invalid proxy_pass due to my MINIKUBE_VARIABLE not being given the minikube IP. This was also probably due to the issues I had with permissions,since `minikube ip` was not runnable without elevated permissions. 
+
+I also had tried to modify the script using:
+```sh
+sudo printf "server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://$MINIKUBE_IP:30001;
+    }
+}" | sudo tee /etc/nginx/sites-available/default > /dev/null
+```
+This failed to work as it would overwrite the entire file instead of a specified section. I then opted to use a `sed` command: `sudo sed "s|try_files \$uri \$uri/ =404;|proxy_pass http://$MINIKUBE_IP:30001;|" /etc/nginx/sites-available/default > /tmp/default.conf`. 
+
+This command: 
+- Searches for the directive try_files $uri $uri/ =404; in the NGINX configuration file.
+- Replaces it with the directive proxy_pass http://<minikube-ip>:30001;, where <minikube-ip> is the value of $MINIKUBE_IP.
+- Saves the updated configuration in /tmp/default.conf to test or review the changes before applying them.

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-app-db
+  template:
+    metadata:
+      labels:
+        app: java-app-db
+    spec:
+      containers:
+      - name: java-app-db
+        image: mysql:5.7
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: password
+          - name: MYSQL_DATABASE
+            value: library
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+          - name: db-storage
+            mountPath: /var/lib/mysql
+          - name: init-script
+            mountPath: /docker-entrypoint-initdb.d/library.sql
+            subPath: library.sql
+      volumes:
+      - name: db-storage
+        persistentVolumeClaim:
+          claimName: app-db-pvc
+      - name: init-script
+        configMap:
+          name: library-sql-configmap
