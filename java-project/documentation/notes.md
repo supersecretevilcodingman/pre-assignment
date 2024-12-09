@@ -14,6 +14,7 @@
     - [The DM VM](#the-dm-vm)
       - [Provisioning Script](#provisioning-script-1)
     - [Blockers](#blockers)
+  - [Architecture Diagram](#architecture-diagram)
 - [For Stage 4: Bash provision script for a single VM that runs in user data but deploys the app and database using containers on the one machine. The containers run by the script should use Docker images](#for-stage-4-bash-provision-script-for-a-single-vm-that-runs-in-user-data-but-deploys-the-app-and-database-using-containers-on-the-one-machine-the-containers-run-by-the-script-should-use-docker-images)
   - [Creating an image of the application using docker for local deployment](#creating-an-image-of-the-application-using-docker-for-local-deployment)
   - [Creating the docker-compose.yaml file](#creating-the-docker-composeyaml-file)
@@ -24,6 +25,7 @@
     - [VM Being Slow and Not Working](#vm-being-slow-and-not-working)
     - [Entrypoint Script Errors](#entrypoint-script-errors)
     - [Docker Permissions](#docker-permissions)
+  - [Architecture Diagram](#architecture-diagram-1)
 - [For Stage 5: Bash provision script for a single VM that runs in user data, but provisions and deploys the app and database using Kubernetes (and optionally Helm) on the one machine](#for-stage-5-bash-provision-script-for-a-single-vm-that-runs-in-user-data-but-provisions-and-deploys-the-app-and-database-using-kubernetes-and-optionally-helm-on-the-one-machine)
   - [Creating the yaml files](#creating-the-yaml-files)
     - [app.deployment.yaml](#appdeploymentyaml)
@@ -38,6 +40,7 @@
   - [Blockers](#blockers-2)
     - [Minikube Permission Issues](#minikube-permission-issues)
     - [NGINX Failed to Start](#nginx-failed-to-start)
+  - [Architecture Diagram](#architecture-diagram-2)
 - [Final thoughts](#final-thoughts)
 
 
@@ -327,6 +330,9 @@ Throughout the provisioning phase, I had multiple blockers that stopped me from 
 
 **Build test errors stopping the app from booting**: Which then begged the question, what actually was the reason my application wasn't starting? It seemed that the `AuthorRepository bean` test was failing, which meant depends on the database being ready and populated with data, meaning the application would not run. This was hard to understand, as the database VM had finished running and populated before the app VM. Manual checks showed that the script should work, as inputting each line in would give the desired end result. To fix the issue with the script, I added a `-DskipTests` to the `mvn clean package` line, that skipped the tests that seemed to stop the app from running. 
 
+## Architecture Diagram
+![alt text](image-5.png)
+
 # For Stage 4: Bash provision script for a single VM that runs in user data but deploys the app and database using containers on the one machine. The containers run by the script should use Docker images 
 - already uploaded to Docker Hub. 
 - Docker-related files 
@@ -468,6 +474,9 @@ I had an issue where the MySQL script kept failing with a "Can't initialize batc
 
 ### Docker Permissions
 I originally had `sudo chmod +x /usr/local/bin/docker-compose` in my script before I had granted the `ubuntu` user permissions. This meant that the user did not have permissions to access the Docker daemon at the time, and this was stopping my script from working. Removing this line entirely fixed this error.
+
+## Architecture Diagram
+![alt text](image-6.png)
 
 # For Stage 5: Bash provision script for a single VM that runs in user data, but provisions and deploys the app and database using Kubernetes (and optionally Helm) on the one machine 
 - Kubernetes-related files 
@@ -689,7 +698,14 @@ This command:
 - Replaces it with the directive proxy_pass http://<minikube-ip>:30001;, where <minikube-ip> is the value of $MINIKUBE_IP.
 - Saves the updated configuration in /tmp/default.conf to test or review the changes before applying them.
 
+## Architecture Diagram
+![alt text](image-7.png)
+
 # Final thoughts
 I learnt a lot about provisioning scripts during this project. It was difficult and frustrating at times, but it showed the importance of having error logging throughout your script so you can locate an issue.
 
 As I used Terraform, I felt as if I've also grown more comfortable using it. It has easily become one of my favourite tools to use.
+
+I used a Trello board for the duration of the project to help me keep organised. 
+![alt text](image-4.png)
+

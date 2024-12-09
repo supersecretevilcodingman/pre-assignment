@@ -57,5 +57,5 @@ resource "aws_security_group" "pre-assignment-kagan-tf-docker-app-nsg" {
 
 output "app_page" {
   description = "URL to App Page"
-  value       = "App Page: http://${aws_instance.app_instance.public_ip}:5000/web/authors"
+  value       = "App Page: http://${aws_instance.app_instance.public_ip}/web/authors"
 }
