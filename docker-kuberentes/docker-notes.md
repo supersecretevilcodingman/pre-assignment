@@ -56,3 +56,54 @@ Docker simplifies the process of installing and running software by eliminating 
 - Streamlined Installation: Docker allows you to run software with a single command, bypassing manual setup and dependency installation.
 - Universal Compatibility: Software can run on any machine—your personal computer, web servers, or cloud platforms—without modification.
 
+# Docker Commands
+
+## `docker run`
+The `docker run` command:
+- Creates and runs a container based on the specified image.
+- Takes the file system snapshot (image) and creates an isolated environment (container).
+- Executes the startup command defined in the image.
+- A combination of `docker create` and `docker start`
+
+### Behind the Scenes:
+1. Docker checks if the image is available locally.
+- If not, it pulls the image from Docker Hub.
+2. The image is used to create a container with isolated resources.
+3. The specified program in the image (e.g., hello-world) is executed.
+4. The container stops when the program completes.
+
+#### `docker create` and `docker start`
+
+`docker create`:
+- Creates a container from an image without starting it.
+- Prepares the file system and allocates resources but does not execute the startup command.
+
+`docker start`:
+- Starts an already created container and executes its startup command.
+- Can be used with or without additional options like `-a` for logs.
+
+You would typically use these for more granular control. 
+
+### Overriding the Default Command
+`docker run <image-name> <custom-command>` can be used to override the default command included in the image by specifiying your own command after the `<image-name>`. 
+
+An example of this would be...
+
+#### Listing Files
+`docker run busybox ls` will list files and directories in the container's root file system. These directories belong to the container's isolated file system, not your local machine. This can be used if a specialised image doesn't have something like the `ls` command. 
+
+## `docker ps`
+The `docker ps` command:
+- Lists all running containers on your machine.
+- Displays detailed information about active containers.
+
+### Show All Containers
+`docker ps --all` can be used to list containers that are running and exited - essentially a history of all containers created on the machine.
+
+## `docker system prune`
+`docker system prune` is used to free up disk space when containers / images are no longer needed.
+1. Deletes stopped containers.
+2. Removes unused:
+   - Images
+   - Networks
+   - Build cache
