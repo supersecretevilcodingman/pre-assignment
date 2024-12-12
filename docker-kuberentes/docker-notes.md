@@ -300,4 +300,6 @@ Hello from Alpine-based Python container!
 4. Use `docker build .` to build the project using the current directory.
 5. Use `docker login` to validate your credentials if you wish to push the image.
 6. Tag the build using `docker build -t <username>/simpleweb`. This will build using `:latest` since we didn't not specify a version.
-7. Use `docker run -p 8080:8080 <image-id>` to port map and allow access on port `8080`.
+7. Use `docker run -p 8080:8080 <image-id>` to port map and allow access on port `8080`. Go to `localhost:8080` to see the page.
+
+Making changes in any file will require you to rebuild the image, which in larger projects, could be large wait times. To help reduce this, we can copy the package.json file during the initial copy. This means that you can make as many changes as you want to the `index.js` file without having to rebuild the whole image because it will not invalidate the cache for the steps above it.
