@@ -1,0 +1,15 @@
+# redis-server
+  # Make it using the 'redis' image
+# node-app
+  # Make it using the Dockerfile in the current directory
+  # Map port 4001 to 8081
+
+version: '3'
+
+services:
+  redis-server:
+    image: 'redis'
+  node-app:
+    build: .
+    ports:
+      - "4001:8081"

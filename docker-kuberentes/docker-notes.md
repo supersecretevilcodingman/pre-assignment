@@ -36,7 +36,8 @@
     - [2. Install Dependencies](#2-install-dependencies)
     - [3. Copy Files](#3-copy-files)
     - [4. Startup Command](#4-startup-command)
-- [Docker Test Project](#docker-test-project)
+- [Docker `simpleweb` Project](#docker-simpleweb-project)
+- [Docker `visits` Project Via `docker-compose`](#docker-visits-project-via-docker-compose)
 
 
 # What is Docker?
@@ -293,13 +294,23 @@ Hello from Alpine-based Python container!
 ### 4. Startup Command
 - `CMD ["python3", "/script.py"]`: Executes the Python script when the container starts.
 
-# Docker Test Project
+# Docker `simpleweb` Project
 1. Create your [package.json](simpleweb/package.json) and [index.js](simpleweb/index.js) files.
 2. Create the [Dockerfile](simpleweb/Dockerfile). 
-3. Open a GitBash window and `cd` to the location of your created files.
+3. Open a GitBash window and `cd` to the `simpleweb` directory.
 4. Use `docker build .` to build the project using the current directory.
 5. Use `docker login` to validate your credentials if you wish to push the image.
-6. Tag the build using `docker build -t <username>/simpleweb`. This will build using `:latest` since we didn't not specify a version.
+6. Tag the build using `docker build -t <username>/simpleweb .`. This will build using `:latest` since we didn't not specify a version.
 7. Use `docker run -p 8080:8080 <image-id>` to port map and allow access on port `8080`. Go to `localhost:8080` to see the page.
 
 Making changes in any file will require you to rebuild the image, which in larger projects, could be large wait times. To help reduce this, we can copy the package.json file during the initial copy. This means that you can make as many changes as you want to the `index.js` file without having to rebuild the whole image because it will not invalidate the cache for the steps above it.
+
+# Docker `visits` Project Via `docker-compose`
+1. Create your [package.json](visits/package.json) and [index.js](visits/index.js) files.
+2. Create the [Dockerfile](visits/Dockerfile). 
+3. Open a GitBash window and `cd` to the `visits` directory.
+4. Use `docker build .` to build the project using the current directory.
+5. Use `docker login` to validate your credentials if you wish to push the image.
+6. Tag the build using `docker build -t <username>/simpleweb:latest .`. 
+7. Create your [docker-compose.yaml](visits/docker-compose.yaml) so that you can connect the `node-app` container to the `redis-server` container, allowing them to communicate.
+8. Use `docker-compose up` to spin up the services so you can then access the page.
